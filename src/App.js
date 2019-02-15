@@ -13,12 +13,12 @@ var wisdoms = [
 
 var authors = [
   "Anonymous",
-  "Anonymous",
-  "Anonymous",
-  "Anonymous",
-  "Anonymous",
-  "Anonymous",
-  "Anonymous"
+  "Jieying",
+  "Jieru",
+  "J.D.",
+  "Tia",
+  "Sarbin",
+  "Dyson"
 ]
 
 
@@ -29,7 +29,8 @@ class App extends Component {
     var index = Math.floor(Math.random() * wisdoms.length);
     
     this.state = {
-      wisdom: wisdoms[index]
+      wisdom: wisdoms[index],
+      author: authors[index]
     };
     
     this.setRandomWisdom = this.setRandomWisdom.bind(this);
@@ -54,58 +55,84 @@ class App extends Component {
     var message = JSON.parse(event.data);
     
     // add a new wisdom to the array, using the message's wisdom property
+   // var wisdom = message.wisdom.replace("smile", "😀");
     var wisdom = message.wisdom;
+    var author =message.author;
     // modify wisdom somehow before pushing?
+    wisdom = wisdom.replace(":smile:", "😀");
+
+    if (wisdom.includes("tree")) { 
+  wisdom = wisdom + "🌲"; 
+}  
+   if ( author.includes("Tia")){
+    author =author+ "👀"
+
+   }
+    //
+  
     wisdoms.push(wisdom);
+    authors.push(author);
     
     // show the last wisdom
     this.setWisdom(wisdoms.length-1);
+    
+
   }
   
   setRandomWisdom() {
     var index = Math.floor(Math.random() * wisdoms.length);
     
     this.setWisdom(index);
+
   }
   
   setWisdom(index) {
     // set wisdom based on an index
     this.setState({
-      wisdom: wisdoms[index]
+      wisdom: wisdoms[index],
+      author: authors[index]
     });
   }
+
+
   
   addWisdom() {
     // ask for wisdom
     var wisdom = prompt("What new wisdom do you offer?");
-    
+    var author = prompt("Waht is your name?")
+
     // if there's no name set, ask for name
-    if (! this.state.name) {
+    if (! this.state.author) {
       this.setState({
-        name: prompt("What is your name?")
+        author: prompt("What is your name?")
       });
     }
-    
+      
     // make a message object
     var message = {
       type: "broadcast", 
-      wisdom: wisdom
+      wisdom: wisdom,
+      author: author
     };
-    
+
     // send it as a string to all other browsers
     this.websocket.send(JSON.stringify(message));
   }
+
   
   lastListItems(count = 5) {
     // wrap last five wisdoms + authors each in a <li> element
     var lastFiveAuthors = authors.slice(authors.length-count);
     var lastFiveWisdoms = wisdoms.slice(wisdoms.length-count);
     
-    return lastFiveWisdoms.map((wisdom, index) => 
-      <li>
-        <span className="wisdom">{wisdom}</span>
-        <span className="author">{lastFiveAuthors[index]}</span>
-      </li>);
+    return lastFiveWisdoms.map((wisdom, index) =>
+      
+      <li className="list">
+        <span className="wisdom"> {lastFiveWisdoms[index]} </span>
+        <span className="author"> -----<i>{lastFiveAuthors[index]}</i> </span>
+      </li>
+     
+      );
   }
     
   removeCurrentWisdom() {
@@ -117,8 +144,12 @@ class App extends Component {
     return (
       <div className="App">
         {this.state.wisdom}
+        <p class="author">{this.state.author}</p>
+        <p> {this.lastListItems()}</p>
+
         <button className="more" onClick={this.setRandomWisdom}>Another</button>
         <button className="new-wisdom" onClick={this.addWisdom}>New</button>
+        <button className="more" onClick={this.removeCurrentWisdom}> Remove </button>
       </div>
     );
   }
