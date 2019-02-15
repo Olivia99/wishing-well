@@ -21,6 +21,16 @@ var authors = [
   "Dyson"
 ]
 
+var likes =[
+0,
+0,
+0,
+0,
+0,
+0,
+0,
+]
+
 
 class App extends Component {
   constructor(props) {
@@ -30,11 +40,13 @@ class App extends Component {
     
     this.state = {
       wisdom: wisdoms[index],
-      author: authors[index]
+      author: authors[index],
+      like: ''
     };
     
     this.setRandomWisdom = this.setRandomWisdom.bind(this);
     this.addWisdom = this.addWisdom.bind(this);
+    this.likeWisdom = this.likeWisdom.bind(this);
     
     this.connectWebsocket();
   }
@@ -48,8 +60,26 @@ class App extends Component {
     this.websocket = new WebSocket('ws://' + window.location.host + '/comm');
     this.websocket.onmessage = this.handleMessage.bind(this);
     this.websocket.onclose = () => setTimeout(() => this.connectWebsocket(), 500);
+    this.handleEmoji =this.handleMessage.bind(this);
+
   }
   
+   
+handleChange(event) {
+
+  var wisdom= event.target.value;
+  var author= "online user"
+
+  wisdoms.push(wisdom);
+  authors.push(author);
+
+  }
+
+  handleSubmit(event){
+
+    this.setWisdom(wisdoms.length-1);
+  }
+
   handleMessage(event) {
     // get the actual message data
     var message = JSON.parse(event.data);
@@ -94,7 +124,11 @@ class App extends Component {
     });
   }
 
+likeWisdom(){
 
+
+
+}
   
   addWisdom() {
     // ask for wisdom
@@ -130,6 +164,7 @@ class App extends Component {
       <li className="list">
         <span className="wisdom"> {lastFiveWisdoms[index]} </span>
         <span className="author"> -----<i>{lastFiveAuthors[index]}</i> </span>
+        <button className="like" conClick={this.likeWisdom}> Like</button>
       </li>
      
       );
@@ -139,6 +174,7 @@ class App extends Component {
     var index = wisdoms.indexOf(this.state.wisdom);
     wisdoms.splice(index, 1);
   }
+
   
   render() {
     return (
@@ -149,7 +185,13 @@ class App extends Component {
 
         <button className="more" onClick={this.setRandomWisdom}>Another</button>
         <button className="new-wisdom" onClick={this.addWisdom}>New</button>
-        <button className="more" onClick={this.removeCurrentWisdom}> Remove </button>
+       <form onSubmit={this.handleSubmit}>
+        <label>
+           Emoji:
+            <input type="text" value={this.state.value}  onChange={this.handleChange} />
+            </label>
+            <input type="submit" value="submit" />
+        </form>
       </div>
     );
   }
